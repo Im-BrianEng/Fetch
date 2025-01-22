@@ -1,0 +1,46 @@
+WITH ReceiptCounts AS (
+    SELECT 
+        ri.brand_Id,
+        COUNT(r._id) AS number_receipts,
+        YEAR(r.dateScanned) AS year,
+        MONTH(r.dateScanned) AS month
+    FROM 
+        Receipts AS r
+    JOIN 
+        ReceiptItemList AS ri ON r._id = ri.receipt_Id
+    WHERE 
+       r.dateScanned BETWEEN DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 2, 0)
+                 AND DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 1, 0)
+    GROUP BY 
+        ri.brand_Id, YEAR(r.dateScanned), MONTH(r.dateScanned)
+),
+RecentMonthCounts AS (
+    SELECT 
+        ri.brand_Id,
+        COUNT(r._id) AS number_receipts,
+        YEAR(r.dateScanned) AS year,
+        MONTH(r.dateScanned) AS month
+    FROM 
+        Receipts AS r
+    JOIN 
+         ReceiptItemList AS ri ON r._id = ri.receipt_Id
+    WHERE 
+       r.dateScanned BETWEEN DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 1, 0)
+                 AND DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()), 0)
+    GROUP BY 
+        ri.brand_Id, YEAR(r.dateScanned), MONTH(r.dateScanned)
+)
+SELECT 
+    b.name AS brand_name,
+    rm.number_receipts AS recent_month_scanned,
+    pm.number_receipts AS previous_month_scanned,
+    RANK() OVER (ORDER BY rm.number_receipts DESC) AS recent_month_rank,
+    RANK() OVER (ORDER BY pm.number_receipts DESC) AS previous_month_rank
+FROM 
+    RecentMonthCounts AS rm
+JOIN 
+    Brands b ON rm.brand_Id = b._id
+LEFT JOIN 
+    ReceiptCounts AS pm ON rm.brand_Id = pm.brand_Id
+ORDER BY 
+    recent_month_rank;
