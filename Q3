@@ -1,0 +1,28 @@
+/*Checking for missing values in important fields*/
+SELECT COUNT(*) AS missing_data
+FROM Receipts
+WHERE user_id IS NULL OR totalSpent IS NULL OR purchaseDate IS NULL;
+
+/*Checking for receipts with invalid or inconsistent date ranges*/
+SELECT COUNT(*) AS invalid_dates
+FROM Receipts
+WHERE purchaseDate > dateScanned;
+
+/*Checking for duplicate receipts based on the receipt_id*/
+SELECT receipt_id, COUNT(*) AS duplicate_count
+FROM Receipts
+GROUP BY receipt_id
+HAVING COUNT(*) > 1;
+
+/*Checking for discrepancies between item count and actual item list*/
+SELECT r.receipt_id, r.purchasedItemCount, COUNT(ri.item_id) AS actual_item_count
+FROM Receipts AS r
+JOIN ReceiptItemList AS ri ON r.receipt_id = ri.receipt_id
+GROUP BY r.receipt_id, r.purchasedItemCount
+HAVING r.purchasedItemCount != actual_item_count;
+
+/* Checking for receipts with invalid or non-existent brand references*/
+SELECT r.receipt_id
+FROM Receipts AS r
+LEFT JOIN Brands AS b ON r.brand_id = b._id
+WHERE b._id IS NULL;
