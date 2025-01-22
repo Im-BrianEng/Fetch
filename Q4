@@ -1,0 +1,15 @@
+Hi,
+
+I’ve had a chance to dig into the data we received, and I wanted to share some initial observations, along with a few questions and concerns that came up during the analysis.
+
+After performing some SQL analysis we identified some data quality issues that we would need some questions answered on how to proceed forward.  Are there specific receipt statuses (e.g., 'Pending', 'Rejected') that we should exclude from our analysis, or should they be treated as valid for all purposes? Should I treat receipt with purchase dates after the date scanned as valid receipts? 
+
+To move forward and prevent future occurrences of data errors it would be helpful to understand the following:
+Can we expect any missing or incorrect values for certain fields like totalSpent or purchaseDate due to system limitations or user input errors? Do we expect duplicate duplicate receipts as these could skew numbers for total spending and item counts. 
+
+As we scale, we may run into performance issues with large queries, especially ones involving multiple joins or aggregations over long periods of time. To ensure fast and reliable performance, we may want to consider indexing critical fields, such as user_id, brand_id, and dateScanned. Additionally, I recommend periodic reviews of data quality, especially around the consistency of key fields like dates and amounts, to prevent errors from accumulating.
+
+Let me know if you have any additional feedback or questions on the analysis or next steps.
+
+Thanks!
+Brian 
